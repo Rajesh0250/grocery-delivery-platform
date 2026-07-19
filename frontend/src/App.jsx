@@ -627,13 +627,36 @@ function ProfilePage({ auth, setAuth }) {
   const [email, setEmail] = useState(auth?.email || 'asha@example.com');
 
   const saveProfile = () => {
-    setAuth((current) => ({ ...current, name, email }));
+    setAuth((current) => ({ ...(current || { name: 'Asha Rao', email: 'asha@example.com', role: 'Customer' }), name, email }));
+  };
+
+  const handlePhotoUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const photo = reader.result;
+      setAuth((current) => ({ ...(current || { name: 'Asha Rao', email: 'asha@example.com', role: 'Customer' }), photo }));
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
       <Typography variant="h5" fontWeight={700}>Profile</Typography>
       <Stack spacing={2} sx={{ mt: 2 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'flex-start', md: 'center' }}>
+          <Avatar src={auth?.photo} sx={{ width: 84, height: 84, bgcolor: 'primary.main', fontSize: 32 }}>
+            {auth?.name?.charAt(0) || 'G'}
+          </Avatar>
+          <Button component="label" variant="outlined">
+            Upload photo
+            <input hidden accept="image/*" type="file" onChange={handlePhotoUpload} />
+          </Button>
+        </Stack>
         <TextField label="Full name" value={name} onChange={(event) => setName(event.target.value)} />
         <TextField label="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
         <TextField label="Phone" defaultValue="9876543210" />
@@ -747,7 +770,9 @@ export default function App() {
   useEffect(() => {
     const loadCatalog = async () => {
       try {
-        const response = await fetch('http://localhost:8081/products');
+        const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || `http://${host}:8081`;
+        const response = await fetch(`${apiBaseUrl}/products`);
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data)) {
@@ -838,8 +863,16 @@ export default function App() {
                 Cart
                 <Badge badgeContent={cartItems.reduce((sum, item) => sum + item.quantity, 0)} color="secondary" sx={{ ml: 1 }} />
               </Button>
-              <Button component={Link} to={auth ? '/profile' : '/auth'}>
-                <Avatar sx={{ bgcolor: 'primary.main' }}>{auth?.name?.charAt(0) || 'G'}</Avatar>
+              <Button component={Link} to={auth ? '/profile' : '/auth'} sx={{ borderRadius: 999, px: 1.2, py: 0.8, color: 'text.primary' }}>
+                <Stack direction="row" spacing={1.2} alignItems="center">
+                  <Avatar src={auth?.photo} sx={{ bgcolor: 'primary.main', width: 36, height: 36 }}>
+                    {auth?.name?.charAt(0) || 'G'}
+                  </Avatar>
+                  <Box sx={{ display: { xs: 'none', md: 'block' }, textAlign: 'left' }}>
+                    <Typography variant="body2" fontWeight={700}>{auth?.name || 'Guest'}</Typography>
+                    <Typography variant="caption" color="text.secondary">{auth?.email || 'View profile'}</Typography>
+                  </Box>
+                </Stack>
               </Button>
             </Stack>
           </Stack>

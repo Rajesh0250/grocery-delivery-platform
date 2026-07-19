@@ -12,17 +12,25 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./database/postgres/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./database/postgres/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U grocery -d grocerydb']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
   redis:
     image: redis:7
     ports:
       - '6379:6379'
+    restart: unless-stopped
 
   rabbitmq:
     image: rabbitmq:3-management
     ports:
       - '5672:5672'
       - '15672:15672'
+    restart: unless-stopped
 
   auth-service:
     build:
@@ -30,17 +38,24 @@ services:
     ports:
       - '8081:8080'
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
     ports:
       - '3000:3000'
     depends_on:
-      - auth-service
-      - postgres
-      - redis
-      - rabbitmq
+      auth-service:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    restart: unless-stopped
 
 volumes:
   pgdata:
