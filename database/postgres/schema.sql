@@ -26,6 +26,9 @@ CREATE TABLE IF NOT EXISTS products (
   price NUMERIC(10,2) NOT NULL,
   category_id INT REFERENCES categories(id),
   image_url TEXT,
+  brand VARCHAR(100),
+  discount NUMERIC(5,2) DEFAULT 0,
+  stock INT DEFAULT 100,
   is_active BOOLEAN DEFAULT TRUE
 );
 

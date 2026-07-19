@@ -1,54 +1,309 @@
-import { useMemo, useState } from 'react';
-import { Box, Button, Card, CardContent, Chip, Container, Grid, Paper, Stack, Typography } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import {
+  AppBar,
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Container,
+  Divider,
+  Grid,
+  IconButton,
+  InputBase,
+  Paper,
+  Stack,
+  Step,
+  StepLabel,
+  Stepper,
+  Typography,
+} from '@mui/material';
+import {
+  Add,
+  ArrowForward,
+  AttachMoney,
+  CreditCard,
+  Delete,
+  LocalOffer,
+  LocationOn,
+  Remove,
+  Search,
+  ShoppingCart,
+  Star,
+  TrendingUp,
+} from '@mui/icons-material';
 
-const categories = ['Fresh', 'Bakery', 'Pantry', 'Beverages', 'Snacks', 'Household'];
+const categories = ['All', 'Fruits', 'Vegetables', 'Dairy', 'Snacks', 'Drinks', 'Personal Care', 'Baby Care', 'Cleaning'];
+
 const products = [
-  { name: 'Organic Bananas', price: 2.49, badge: 'Fresh Pick' },
-  { name: 'Free Range Eggs', price: 4.99, badge: 'Popular' },
-  { name: 'Whole Grain Bread', price: 3.29, badge: 'Baked Today' },
-  { name: 'Almond Milk', price: 3.89, badge: 'New' }
+  {
+    id: 1,
+    name: 'Amul Milk',
+    brand: 'Amul',
+    price: 68,
+    discount: 10,
+    rating: 4.8,
+    reviews: 1294,
+    stock: 'In Stock',
+    unit: '500 ml',
+    category: 'Dairy',
+    description: 'Creamy and rich whole milk ideal for tea, coffee, and breakfast bowls.',
+    nutrition: 'Protein 3.5g • Calcium 120mg',
+    image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=800&q=80',
+    ],
+  },
+  {
+    id: 2,
+    name: 'Mother Dairy Paneer',
+    brand: 'Mother Dairy',
+    price: 92,
+    discount: 8,
+    rating: 4.7,
+    reviews: 842,
+    stock: 'In Stock',
+    unit: '200 g',
+    category: 'Dairy',
+    description: 'Soft paneer cubes for curries, wraps, and quick snacks.',
+    nutrition: 'Protein 18g • Calcium 180mg',
+    image: 'https://images.unsplash.com/photo-1589881133595-a3c085cb731d?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1589881133595-a3c085cb731d?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=800&q=80',
+    ],
+  },
+  {
+    id: 3,
+    name: 'Fresh Bananas',
+    brand: 'Fresho',
+    price: 49,
+    discount: 12,
+    rating: 4.9,
+    reviews: 564,
+    stock: 'In Stock',
+    unit: '1 kg',
+    category: 'Fruits',
+    description: 'Naturally sweet bananas perfect for breakfast and smoothies.',
+    nutrition: 'Fiber 3.1g • Potassium 358mg',
+    image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=800&q=80',
+    ],
+  },
+  {
+    id: 4,
+    name: 'Farm Eggs',
+    brand: 'Eggs & Co',
+    price: 84,
+    discount: 6,
+    rating: 4.6,
+    reviews: 701,
+    stock: 'In Stock',
+    unit: '12 count',
+    category: 'Dairy',
+    description: 'Protein-rich farm eggs for omelettes, baking, and breakfast.',
+    nutrition: 'Protein 6g • Vitamin B12',
+    image: 'https://images.unsplash.com/photo-1518569656558-1f25e0d0d30f?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1518569656558-1f25e0d0d30f?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1587486913049-53fc88980cfc?auto=format&fit=crop&w=800&q=80',
+    ],
+  },
+  {
+    id: 5,
+    name: 'Coca-Cola 1.25L',
+    brand: 'Coca-Cola',
+    price: 89,
+    discount: 15,
+    rating: 4.5,
+    reviews: 320,
+    stock: 'In Stock',
+    unit: '1.25 L',
+    category: 'Drinks',
+    description: 'Classic fizzy cola for lunch boxes and parties.',
+    nutrition: 'Sugar 39g',
+    image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=800&q=80',
+    ],
+  },
+  {
+    id: 6,
+    name: 'Saffola Oats',
+    brand: 'Saffola',
+    price: 128,
+    discount: 11,
+    rating: 4.7,
+    reviews: 617,
+    stock: 'In Stock',
+    unit: '500 g',
+    category: 'Snacks',
+    description: 'Wholesome oats for breakfast and healthy snacking.',
+    nutrition: 'Fiber 5g • Iron 2.5mg',
+    image: 'https://images.unsplash.com/photo-1514000337598-7f5f2f9d4f3f?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1514000337598-7f5f2f9d4f3f?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=800&q=80',
+    ],
+  },
+  {
+    id: 7,
+    name: 'Dettol Surface Cleaner',
+    brand: 'Dettol',
+    price: 165,
+    discount: 9,
+    rating: 4.6,
+    reviews: 511,
+    stock: 'In Stock',
+    unit: '500 ml',
+    category: 'Cleaning',
+    description: 'Powerful cleaner for kitchen and bathroom surfaces.',
+    nutrition: 'Disinfecting action',
+    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1600047509807-ba189b1a22c2?auto=format&fit=crop&w=800&q=80',
+    ],
+  },
+  {
+    id: 8,
+    name: 'Pampers Baby Diapers',
+    brand: 'Pampers',
+    price: 599,
+    discount: 14,
+    rating: 4.8,
+    reviews: 432,
+    stock: 'In Stock',
+    unit: '72 count',
+    category: 'Baby Care',
+    description: 'Gentle absorbent diapers for babies with long-lasting comfort.',
+    nutrition: 'Soft & breathable',
+    image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80',
+    ],
+  },
 ];
 
-export default function App() {
-  const [cartCount, setCartCount] = useState(2);
-  const total = useMemo(() => products.slice(0, 2).reduce((sum, p) => sum + p.price, 0), []);
+const offers = [
+  { title: 'Flat ₹50 off', subtitle: 'On first order above ₹250', color: '#e8f5e9' },
+  { title: 'Free delivery', subtitle: 'Today only on essentials', color: '#fff3e0' },
+  { title: 'Buy 2, get 1 free', subtitle: 'On selected dairy', color: '#f3e5f5' },
+];
+
+function formatCurrency(value) {
+  return `₹${value.toFixed(0)}`;
+}
+
+function ProductCard({ product, onAdd, onOpen }) {
+  return (
+    <Card variant="outlined" sx={{ height: '100%', borderRadius: 3, display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ position: 'relative' }}>
+        <Box component="img" src={product.image} alt={product.name} sx={{ width: '100%', height: 180, objectFit: 'cover' }} />
+        <Chip label={`${product.discount}% OFF`} color="secondary" size="small" sx={{ position: 'absolute', top: 12, left: 12 }} />
+      </Box>
+      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Typography variant="subtitle2" color="text.secondary">{product.brand}</Typography>
+        <Typography variant="h6" fontWeight={700} onClick={() => onOpen(product.id)} sx={{ cursor: 'pointer' }}>{product.name}</Typography>
+        <Typography variant="body2" color="text.secondary">{product.unit}</Typography>
+        <Stack direction="row" alignItems="center" spacing={0.5}>
+          <Star sx={{ fontSize: 16, color: '#ffb300' }} />
+          <Typography variant="body2" fontWeight={600}>{product.rating}</Typography>
+          <Typography variant="body2" color="text.secondary">({product.reviews})</Typography>
+        </Stack>
+        <Typography variant="body2" color="success.main">{product.stock}</Typography>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 'auto' }}>
+          <Typography variant="h6" fontWeight={700}>{formatCurrency(product.price)}</Typography>
+          <Button variant="contained" size="small" onClick={() => onAdd(product, 1)}>Add</Button>
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+}
+
+function HomePage({ productsList, searchTerm, setSearchTerm, selectedCategory, setSelectedCategory, addToCart, navigate }) {
+  const [activeBanner, setActiveBanner] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setActiveBanner((value) => (value + 1) % offers.length), 5000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const visibleProducts = useMemo(() => {
+    return productsList.filter((product) => {
+      const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [productsList, searchTerm, selectedCategory]);
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Paper elevation={2} sx={{ p: 3, borderRadius: 3, mb: 3 }}>
+    <Box>
+      <Paper elevation={0} sx={{ borderRadius: 4, p: { xs: 2, md: 3 }, mb: 3, bgcolor: '#fff8e1' }}>
+        <Typography variant="body2" fontWeight={700} color="secondary.main">10 minute delivery to Hyderabad</Typography>
+        <Typography variant="h5" fontWeight={700} sx={{ mt: 1 }}>Fresh groceries at your doorstep</Typography>
+        <Typography color="text.secondary" sx={{ mt: 1 }}>Curated categories, live offers, and lightning-fast checkout.</Typography>
+      </Paper>
+
+      <Paper elevation={0} sx={{ borderRadius: 4, p: 2, mb: 3, bgcolor: '#ffffff' }}>
+        <Stack direction="row" spacing={1} sx={{ overflowX: 'auto', pb: 1 }}>
+          {categories.map((category) => (
+            <Chip
+              key={category}
+              label={category}
+              clickable
+              color={selectedCategory === category ? 'primary' : 'default'}
+              variant={selectedCategory === category ? 'filled' : 'outlined'}
+              onClick={() => setSelectedCategory(category)}
+            />
+          ))}
+        </Stack>
+      </Paper>
+
+      <Paper elevation={0} sx={{ borderRadius: 4, p: { xs: 2, md: 3 }, mb: 3, bgcolor: '#ffffff' }}>
         <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
           <Box>
-            <Typography variant="h4" fontWeight={700}>GreenBasket</Typography>
-            <Typography color="text.secondary">Fast, reliable grocery delivery for modern households.</Typography>
+            <Typography variant="h6" fontWeight={700}>Live offers</Typography>
+            <Typography color="text.secondary">Offers update every few seconds for quick-commerce shoppers.</Typography>
           </Box>
-          <Stack direction="row" spacing={1}>
-            <Chip label="Same day delivery" color="primary" />
-            <Chip label="Live inventory" color="secondary" />
-          </Stack>
+          <Chip icon={<LocalOffer />} label={offers[activeBanner].title} color="secondary" />
         </Stack>
+        <Box sx={{ mt: 2, p: 2, borderRadius: 3, bgcolor: offers[activeBanner].color }}>
+          <Typography fontWeight={700}>{offers[activeBanner].title}</Typography>
+          <Typography color="text.secondary">{offers[activeBanner].subtitle}</Typography>
+        </Box>
       </Paper>
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, borderRadius: 3 }}>
-            <Typography variant="h5" fontWeight={600} gutterBottom>Today's essentials</Typography>
-            <Stack direction="row" spacing={1} sx={{ mb: 2, overflowX: 'auto' }}>
-              {categories.map((cat) => <Chip key={cat} label={cat} variant="outlined" />)}
+          <Paper elevation={0} sx={{ borderRadius: 4, p: { xs: 2, md: 3 }, mb: 3, bgcolor: '#ffffff' }}>
+            <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2}>
+              <Typography variant="h6" fontWeight={700}>Best Sellers</Typography>
+              <Button endIcon={<ArrowForward />} onClick={() => navigate('/cart')}>View cart</Button>
             </Stack>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              {visibleProducts.slice(0, 4).map((product) => (
+                <Grid item xs={12} sm={6} key={product.id}>
+                  <ProductCard product={product} onAdd={addToCart} onOpen={(id) => navigate(`/product/${id}`)} />
+                </Grid>
+              ))}
+            </Grid>
+          </Paper>
+
+          <Paper elevation={0} sx={{ borderRadius: 4, p: { xs: 2, md: 3 }, bgcolor: '#ffffff' }}>
+            <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>Recommended for you</Typography>
             <Grid container spacing={2}>
-              {products.map((product) => (
-                <Grid item xs={12} sm={6} key={product.name}>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Typography variant="subtitle2" color="primary">{product.badge}</Typography>
-                      <Typography variant="h6">{product.name}</Typography>
-                      <Typography color="text.secondary">Freshly stocked and ready for delivery.</Typography>
-                      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2 }}>
-                        <Typography fontWeight={700}>${product.price.toFixed(2)}</Typography>
-                        <Button variant="contained" onClick={() => setCartCount((v) => v + 1)}>Add</Button>
-                      </Stack>
-                    </CardContent>
-                  </Card>
+              {productsList.slice(0, 4).map((product) => (
+                <Grid item xs={12} sm={6} key={`recommended-${product.id}`}>
+                  <ProductCard product={product} onAdd={addToCart} onOpen={(id) => navigate(`/product/${id}`)} />
                 </Grid>
               ))}
             </Grid>
@@ -56,19 +311,351 @@ export default function App() {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, borderRadius: 3 }}>
-            <Typography variant="h6" fontWeight={600}>Cart</Typography>
-            <Typography color="text.secondary">{cartCount} items selected</Typography>
-            <Box sx={{ mt: 2, borderTop: 1, borderColor: 'divider', pt: 2 }}>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography>Subtotal</Typography>
-                <Typography>${total.toFixed(2)}</Typography>
-              </Stack>
-              <Button fullWidth variant="contained" sx={{ mt: 2 }}>Checkout</Button>
-            </Box>
+          <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff', mb: 3 }}>
+            <Typography variant="h6" fontWeight={700}>Search</Typography>
+            <Paper component="form" elevation={0} sx={{ mt: 2, border: 1, borderColor: 'divider', borderRadius: 3, display: 'flex', alignItems: 'center', px: 1.5, py: 0.5 }}>
+              <Search color="action" />
+              <InputBase value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search milk, eggs, paneer" sx={{ ml: 1, flex: 1 }} />
+            </Paper>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              Live search query: GET /products/search?keyword={searchTerm || 'milk'}
+            </Typography>
+            <Stack spacing={1} sx={{ mt: 2 }}>
+              {productsList.filter((product) => product.name.toLowerCase().includes((searchTerm || 'milk').toLowerCase())).slice(0, 4).map((product) => (
+                <Box key={product.id} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 1.5 }}>
+                  <Typography fontWeight={700}>{product.name}</Typography>
+                  <Typography variant="body2" color="text.secondary">{product.brand} • {product.unit}</Typography>
+                </Box>
+              ))}
+            </Stack>
+          </Paper>
+
+          <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+            <Typography variant="h6" fontWeight={700}>Recently viewed</Typography>
+            <Stack spacing={1.5} sx={{ mt: 2 }}>
+              {productsList.slice(1, 4).map((product) => (
+                <Stack key={product.id} direction="row" alignItems="center" spacing={1.5}>
+                  <Avatar src={product.image} variant="rounded" sx={{ width: 48, height: 48 }} />
+                  <Box>
+                    <Typography fontWeight={700}>{product.name}</Typography>
+                    <Typography variant="body2" color="text.secondary">{formatCurrency(product.price)}</Typography>
+                  </Box>
+                </Stack>
+              ))}
+            </Stack>
           </Paper>
         </Grid>
       </Grid>
-    </Container>
+    </Box>
+  );
+}
+
+function ProductDetailPage({ productsList, addToCart, navigate }) {
+  const { id } = useParams();
+  const product = productsList.find((item) => item.id === Number(id));
+  const [activeImage, setActiveImage] = useState(0);
+
+  if (!product) {
+    return <Typography variant="h6">Product not found</Typography>;
+  }
+
+  return (
+    <Grid container spacing={3}>
+      <Grid item xs={12} lg={7}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+            {product.images.map((image, index) => (
+              <Box key={image} component="img" src={image} alt={product.name} onClick={() => setActiveImage(index)} sx={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 2, border: activeImage === index ? 2 : 1, borderColor: activeImage === index ? 'primary.main' : 'divider', cursor: 'pointer' }} />
+            ))}
+          </Stack>
+          <Box component="img" src={product.images[activeImage]} alt={product.name} sx={{ width: '100%', borderRadius: 4, height: 360, objectFit: 'cover' }} />
+          <Typography variant="h4" fontWeight={700} sx={{ mt: 3 }}>{product.name}</Typography>
+          <Typography color="text.secondary" sx={{ mt: 1 }}>{product.description}</Typography>
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 2 }}>
+            <Star sx={{ color: '#ffb300' }} />
+            <Typography fontWeight={700}>{product.rating}</Typography>
+            <Typography color="text.secondary">{product.reviews} reviews</Typography>
+          </Stack>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" fontWeight={700}>Nutrition</Typography>
+          <Typography color="text.secondary" sx={{ mt: 1 }}>{product.nutrition}</Typography>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" fontWeight={700}>Reviews</Typography>
+          <Typography color="text.secondary" sx={{ mt: 1 }}>“Great quality, fresh delivery, and excellent packaging.”</Typography>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} lg={5}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff', position: 'sticky', top: 90 }}>
+          <Typography variant="subtitle2" color="text.secondary">{product.brand}</Typography>
+          <Typography variant="h5" fontWeight={700}>{product.name}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{product.unit}</Typography>
+          <Typography color="success.main" sx={{ mt: 1 }}>{product.stock}</Typography>
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ mt: 2 }}>
+            <Typography variant="h4" fontWeight={700}>{formatCurrency(product.price)}</Typography>
+            <Chip label={`${product.discount}% OFF`} color="secondary" />
+          </Stack>
+          <Button fullWidth variant="contained" sx={{ mt: 3 }} onClick={() => addToCart(product, 1)}>Add to Cart</Button>
+          <Button fullWidth variant="outlined" sx={{ mt: 1.5 }} onClick={() => navigate('/checkout')}>Buy Now</Button>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="subtitle1" fontWeight={700}>Similar Products</Typography>
+          <Stack spacing={1.5} sx={{ mt: 2 }}>
+            {productsList.slice(0, 3).map((item) => (
+              <Stack key={item.id} direction="row" justifyContent="space-between" alignItems="center">
+                <Box>
+                  <Typography fontWeight={700}>{item.name}</Typography>
+                  <Typography variant="body2" color="text.secondary">{item.unit}</Typography>
+                </Box>
+                <Button size="small" onClick={() => navigate(`/product/${item.id}`)}>View</Button>
+              </Stack>
+            ))}
+          </Stack>
+        </Paper>
+      </Grid>
+    </Grid>
+  );
+}
+
+function CartPage({ cartItems, updateQuantity, removeFromCart, subtotal, deliveryCharge, gst, total, navigate }) {
+  return (
+    <Grid container spacing={3}>
+      <Grid item xs={12} lg={8}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Typography variant="h5" fontWeight={700}>Cart</Typography>
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            {cartItems.length === 0 ? (
+              <Typography color="text.secondary">Your cart is empty. Add a few essentials.</Typography>
+            ) : (
+              cartItems.map((item) => (
+                <Box key={item.id} sx={{ border: 1, borderColor: 'divider', borderRadius: 3, p: 2 }}>
+                  <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={1}>
+                    <Box>
+                      <Typography fontWeight={700}>{item.name}</Typography>
+                      <Typography variant="body2" color="text.secondary">{item.unit}</Typography>
+                    </Box>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <IconButton size="small" onClick={() => updateQuantity(item.id, -1)}><Remove /></IconButton>
+                      <Typography fontWeight={700}>{item.quantity}</Typography>
+                      <IconButton size="small" onClick={() => updateQuantity(item.id, 1)}><Add /></IconButton>
+                      <IconButton size="small" onClick={() => removeFromCart(item.id)}><Delete /></IconButton>
+                    </Stack>
+                    <Typography fontWeight={700}>{formatCurrency(item.price * item.quantity)}</Typography>
+                  </Stack>
+                </Box>
+              ))
+            )}
+          </Stack>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} lg={4}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Typography variant="h6" fontWeight={700}>Order summary</Typography>
+          <Stack spacing={1.5} sx={{ mt: 2 }}>
+            <Stack direction="row" justifyContent="space-between"><Typography>Items</Typography><Typography>{formatCurrency(subtotal)}</Typography></Stack>
+            <Stack direction="row" justifyContent="space-between"><Typography>Coupon</Typography><Typography color="success.main">- ₹20</Typography></Stack>
+            <Stack direction="row" justifyContent="space-between"><Typography>Delivery charge</Typography><Typography>{formatCurrency(deliveryCharge)}</Typography></Stack>
+            <Stack direction="row" justifyContent="space-between"><Typography>GST</Typography><Typography>{formatCurrency(gst)}</Typography></Stack>
+            <Divider />
+            <Stack direction="row" justifyContent="space-between"><Typography fontWeight={700}>Total</Typography><Typography fontWeight={700}>{formatCurrency(total)}</Typography></Stack>
+          </Stack>
+          <Button fullWidth variant="contained" sx={{ mt: 3 }} onClick={() => navigate('/checkout')}>Proceed to checkout</Button>
+        </Paper>
+      </Grid>
+    </Grid>
+  );
+}
+
+function CheckoutPage({ cartItems, subtotal, deliveryCharge, gst, total, navigate }) {
+  const [selectedAddress, setSelectedAddress] = useState('Home');
+  const [slot, setSlot] = useState('Today, 6-8 PM');
+  const [paymentMethod, setPaymentMethod] = useState('UPI');
+
+  return (
+    <Grid container spacing={3}>
+      <Grid item xs={12} lg={8}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Typography variant="h5" fontWeight={700}>Checkout</Typography>
+          <Typography color="text.secondary" sx={{ mt: 1 }}>Add your delivery details and pay in seconds.</Typography>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" fontWeight={700}>Address</Typography>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mt: 2 }}>
+            {['Home', 'Office', 'Friend'].map((address) => (
+              <Button key={address} variant={selectedAddress === address ? 'contained' : 'outlined'} onClick={() => setSelectedAddress(address)}>{address}</Button>
+            ))}
+          </Stack>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" fontWeight={700}>Delivery slot</Typography>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mt: 2 }}>
+            {['Today, 6-8 PM', 'Tomorrow, 9-11 AM', 'Tomorrow, 6-8 PM'].map((option) => (
+              <Button key={option} variant={slot === option ? 'contained' : 'outlined'} onClick={() => setSlot(option)}>{option}</Button>
+            ))}
+          </Stack>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" fontWeight={700}>Payment method</Typography>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mt: 2 }}>
+            {['UPI', 'Card', 'COD', 'Wallet'].map((method) => (
+              <Button key={method} variant={paymentMethod === method ? 'contained' : 'outlined'} startIcon={<CreditCard />} onClick={() => setPaymentMethod(method)}>{method}</Button>
+            ))}
+          </Stack>
+          <Button fullWidth variant="contained" sx={{ mt: 3 }} onClick={() => navigate('/orders')}>Place your order</Button>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} lg={4}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Typography variant="h6" fontWeight={700}>Delivery summary</Typography>
+          <Stack spacing={1.5} sx={{ mt: 2 }}>
+            {cartItems.map((item) => (
+              <Stack key={item.id} direction="row" justifyContent="space-between"><Typography>{item.name} × {item.quantity}</Typography><Typography>{formatCurrency(item.price * item.quantity)}</Typography></Stack>
+            ))}
+            <Divider />
+            <Stack direction="row" justifyContent="space-between"><Typography>Subtotal</Typography><Typography>{formatCurrency(subtotal)}</Typography></Stack>
+            <Stack direction="row" justifyContent="space-between"><Typography>Coupon</Typography><Typography color="success.main">- ₹20</Typography></Stack>
+            <Stack direction="row" justifyContent="space-between"><Typography>Delivery</Typography><Typography>{formatCurrency(deliveryCharge)}</Typography></Stack>
+            <Stack direction="row" justifyContent="space-between"><Typography>GST</Typography><Typography>{formatCurrency(gst)}</Typography></Stack>
+            <Stack direction="row" justifyContent="space-between"><Typography fontWeight={700}>Total</Typography><Typography fontWeight={700}>{formatCurrency(total)}</Typography></Stack>
+          </Stack>
+        </Paper>
+      </Grid>
+    </Grid>
+  );
+}
+
+function OrdersPage() {
+  const steps = ['Placed', 'Packed', 'Out for Delivery', 'Delivered'];
+  const activeStep = 2;
+
+  return (
+    <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+      <Typography variant="h5" fontWeight={700}>Order #25434</Typography>
+      <Typography color="text.secondary" sx={{ mt: 1 }}>Your groceries are on the way.</Typography>
+      <Stepper activeStep={activeStep} alternativeLabel sx={{ mt: 3 }}>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      <Box sx={{ mt: 3, border: 1, borderColor: 'divider', borderRadius: 3, p: 2 }}>
+        <Typography fontWeight={700}>Current status</Typography>
+        <Typography color="text.secondary" sx={{ mt: 1 }}>A rider is heading to your address with your order.</Typography>
+      </Box>
+    </Paper>
+  );
+}
+
+function AdminPage() {
+  return (
+    <Grid container spacing={3}>
+      <Grid item xs={12} md={6} lg={3}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Typography variant="h6" fontWeight={700}>Orders</Typography>
+          <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>242</Typography>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} md={6} lg={3}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Typography variant="h6" fontWeight={700}>Products</Typography>
+          <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>128</Typography>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} md={6} lg={3}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Typography variant="h6" fontWeight={700}>Inventory</Typography>
+          <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>94%</Typography>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} md={6} lg={3}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Typography variant="h6" fontWeight={700}>Revenue</Typography>
+          <Typography variant="h4" fontWeight={700} sx={{ mt: 1 }}>₹3.2M</Typography>
+        </Paper>
+      </Grid>
+      <Grid item xs={12}>
+        <Paper elevation={0} sx={{ borderRadius: 4, p: 3, bgcolor: '#ffffff' }}>
+          <Typography variant="h6" fontWeight={700}>Admin Console</Typography>
+          <Typography color="text.secondary" sx={{ mt: 1 }}>Dashboard • Orders • Products • Inventory • Users • Analytics • Coupons • Payments</Typography>
+        </Paper>
+      </Grid>
+    </Grid>
+  );
+}
+
+export default function App() {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('milk');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [cart, setCart] = useState([
+    { id: 1, quantity: 2 },
+    { id: 3, quantity: 1 },
+  ]);
+
+  const addToCart = (product, quantity = 1) => {
+    setCart((current) => {
+      const existing = current.find((item) => item.id === product.id);
+      if (existing) {
+        return current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item);
+      }
+      return [...current, { id: product.id, quantity }];
+    });
+  };
+
+  const updateQuantity = (productId, delta) => {
+    setCart((current) => current.flatMap((item) => item.id === productId ? (item.quantity + delta > 0 ? [{ ...item, quantity: item.quantity + delta }] : []) : [item]));
+  };
+
+  const removeFromCart = (productId) => {
+    setCart((current) => current.filter((item) => item.id !== productId));
+  };
+
+  const cartItems = useMemo(() => {
+    return cart.map((item) => ({ ...products.find((product) => product.id === item.id), quantity: item.quantity })).filter(Boolean);
+  }, [cart]);
+
+  const subtotal = useMemo(() => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0), [cartItems]);
+  const deliveryCharge = subtotal > 0 ? 40 : 0;
+  const gst = subtotal * 0.12;
+  const total = subtotal + deliveryCharge + gst - 20;
+
+  return (
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f6f7fb' }}>
+      <AppBar position="sticky" color="transparent" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'rgba(255,255,255,0.95)' }}>
+        <Container maxWidth="xl">
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} sx={{ py: 1.5 }}>
+            <Stack direction="row" alignItems="center" spacing={1.5}>
+              <Button component={Link} to="/" sx={{ color: 'text.primary', fontSize: 22, fontWeight: 800, textTransform: 'none', p: 0 }}>
+                GreenBasket
+              </Button>
+              <Paper elevation={0} sx={{ px: 1.5, py: 0.75, borderRadius: 999, bgcolor: '#f6f7fb', display: 'flex', alignItems: 'center' }}>
+                <LocationOn color="primary" fontSize="small" />
+                <Typography variant="body2" sx={{ ml: 0.6 }}>Hyderabad</Typography>
+              </Paper>
+            </Stack>
+            <Paper elevation={0} sx={{ flex: 1, maxWidth: 560, border: 1, borderColor: 'divider', borderRadius: 999, px: 1.5, display: 'flex', alignItems: 'center' }}>
+              <Search color="action" />
+              <InputBase value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search milk, eggs, bread" sx={{ ml: 1, flex: 1 }} />
+            </Paper>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Button component={Link} to="/orders">Orders</Button>
+              <Button component={Link} to="/admin">Admin</Button>
+              <Button component={Link} to="/cart" startIcon={<ShoppingCart />}>
+                Cart
+                <Badge badgeContent={cartItems.reduce((sum, item) => sum + item.quantity, 0)} color="secondary" sx={{ ml: 1 }} />
+              </Button>
+              <Avatar sx={{ bgcolor: 'primary.main' }}>RJ</Avatar>
+            </Stack>
+          </Stack>
+        </Container>
+      </AppBar>
+
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Routes>
+          <Route path="/" element={<HomePage productsList={products} searchTerm={searchTerm} setSearchTerm={setSearchTerm} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} addToCart={addToCart} navigate={navigate} />} />
+          <Route path="/product/:id" element={<ProductDetailPage productsList={products} addToCart={addToCart} navigate={navigate} />} />
+          <Route path="/cart" element={<CartPage cartItems={cartItems} updateQuantity={updateQuantity} removeFromCart={removeFromCart} subtotal={subtotal} deliveryCharge={deliveryCharge} gst={gst} total={total} navigate={navigate} />} />
+          <Route path="/checkout" element={<CheckoutPage cartItems={cartItems} subtotal={subtotal} deliveryCharge={deliveryCharge} gst={gst} total={total} navigate={navigate} />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+        </Routes>
+      </Container>
+    </Box>
   );
 }

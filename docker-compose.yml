@@ -10,6 +10,8 @@ services:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./database/postgres/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./database/postgres/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
 
   redis:
     image: redis:7
@@ -22,11 +24,20 @@ services:
       - '5672:5672'
       - '15672:15672'
 
+  auth-service:
+    build:
+      context: ./backend/services/auth-service
+    ports:
+      - '8081:8080'
+    depends_on:
+      - postgres
+
   frontend:
     build: ./frontend
     ports:
       - '3000:3000'
     depends_on:
+      - auth-service
       - postgres
       - redis
       - rabbitmq
