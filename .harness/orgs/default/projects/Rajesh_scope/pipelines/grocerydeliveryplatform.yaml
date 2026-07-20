@@ -37,4 +37,4 @@ pipeline:
                   identifier: docker_run
                   spec:
                     shell: Sh
-                    command: docker compose up --build
+                    command: docker compose up -d --build
