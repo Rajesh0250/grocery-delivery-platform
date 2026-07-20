@@ -38,3 +38,12 @@ pipeline:
                   spec:
                     shell: Sh
                     command: docker compose up -d --build
+              - step:
+                  type: Run
+                  name: list images and containers
+                  identifier: list_images_and_containers
+                  spec:
+                    shell: Sh
+                    command: |-
+                      docker image ls
+                      docker ps -a
