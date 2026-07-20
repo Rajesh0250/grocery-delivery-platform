@@ -1,0 +1,40 @@
+pipeline:
+  name: grocery-delivery-platform
+  identifier: grocerydeliveryplatform
+  projectIdentifier: Rajesh_scope
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: Github_
+        repoName: grocery-delivery-platform
+        build: <+input>
+  stages:
+    - stage:
+        name: Build
+        identifier: Build
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: docker_run
+                  identifier: docker_run
+                  spec:
+                    shell: Sh
+                    command: docker compose up --build
